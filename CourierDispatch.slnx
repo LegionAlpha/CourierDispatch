@@ -6,4 +6,7 @@
     <Project Path="src/Orders/Orders.Domain/Orders.Domain.csproj" />
     <Project Path="src/Orders/Orders.Infrastructure/Orders.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Orders.Tests/Orders.Tests.csproj" />
+  </Folder>
 </Solution>
