@@ -42,12 +42,10 @@ public class OrderTests
     }
 
     [Fact]
-    public void Create_GeneratesSequentialIds()
+    public void Create_GeneratesVersion7Id()
     {
-        var first = Order.Create(From, To, 50000, 20);
-        var second = Order.Create(From, To, 50000, 20);
-
-        Assert.True(second.Id.CompareTo(first.Id) > 0);
+        var order = Order.Create(From, To, 50000, 20);
+        Assert.Equal(7, order.Id.Version);
     }
 
     // Transition
