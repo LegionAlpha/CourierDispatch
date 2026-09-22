@@ -2,8 +2,8 @@
 
 public readonly record struct GeoPoint
 {
-    public double Latitude { get; }
-    public double Longitude { get; }
+    public double Latitude { get; private init; }
+    public double Longitude { get; private init; }
 
     public GeoPoint(double latitude, double longitude)
     {
