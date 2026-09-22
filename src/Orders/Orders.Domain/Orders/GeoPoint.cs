@@ -1,11 +1,8 @@
-﻿namespace Orders.Domain.Orders;
+namespace Orders.Domain.Orders;
 
-public readonly record struct GeoPoint
+public readonly record struct GeoPoint(double Latitude, double Longitude)
 {
-    public double Latitude { get; private init; }
-    public double Longitude { get; private init; }
-
-    public GeoPoint(double latitude, double longitude)
+    public static GeoPoint Create(double latitude, double longitude)
     {
         if (double.IsNaN(latitude) || latitude < -90 || latitude > 90)
         {
@@ -17,7 +14,6 @@ public readonly record struct GeoPoint
             throw new DomainException("Longitude must be between -180 and 180 degrees.");
         }
 
-        Latitude = latitude;
-        Longitude = longitude;
+        return new GeoPoint(latitude, longitude);
     }
 }
