@@ -5,21 +5,21 @@ namespace Orders.Tests;
 
 public class OrderTests
 {
-    private static readonly GeoPoint From = new(55.75, 37.62);
-    private static readonly GeoPoint To = new(55.76, 37.63);
+    private static readonly GeoPoint _from = GeoPoint.Create(55.75, 37.62);
+    private static readonly GeoPoint _to = GeoPoint.Create(55.76, 37.63);
 
     // Create
 
     [Fact]
     public void Create_ReturnsOrderInCreatedStatus()
     {
-        var order = Order.Create(From, To, priceMinor: 50000, etaMinutes: 20);
+        var order = Order.Create(_from, _to, priceMinor: 50000, etaMinutes: 20);
 
         Assert.Equal(OrderStatus.Created, order.Status);
         Assert.Null(order.CourierId);
         Assert.NotEqual(Guid.Empty, order.Id);
-        Assert.Equal(From, order.From);
-        Assert.Equal(To, order.To);
+        Assert.Equal(_from, order.From);
+        Assert.Equal(_to, order.To);
         Assert.Equal(50000, order.PriceMinor);
         Assert.Equal(20, order.EtaMinutes);
     }
@@ -30,13 +30,13 @@ public class OrderTests
     [InlineData(50000, -5)]
     public void Create_WithInvalidPriceOrEta_Throws(long priceMinor, int etaMinutes)
     {
-        Assert.Throws<DomainException>(() => Order.Create(From, To, priceMinor, etaMinutes));
+        Assert.Throws<DomainException>(() => Order.Create(_from, _to, priceMinor, etaMinutes));
     }
 
     [Fact]
     public void Create_WithZeroPrice_Succeeds()
     {
-        var order = Order.Create(From, To, priceMinor: 0, etaMinutes: 1);
+        var order = Order.Create(_from, _to, priceMinor: 0, etaMinutes: 1);
 
         Assert.Equal(0, order.PriceMinor);
     }
@@ -44,7 +44,7 @@ public class OrderTests
     [Fact]
     public void Create_GeneratesVersion7Id()
     {
-        var order = Order.Create(From, To, 50000, 20);
+        var order = Order.Create(_from, _to, 50000, 20);
         Assert.Equal(7, order.Id.Version);
     }
 
@@ -191,7 +191,7 @@ public class OrderTests
 
     // Helpers
 
-    private static Order CreateOrder() => Order.Create(From, To, 50000, 20);
+    private static Order CreateOrder() => Order.Create(_from, _to, 50000, 20);
 
     private static Order CreateSearchingOrder()
     {

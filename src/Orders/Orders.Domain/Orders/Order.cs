@@ -1,4 +1,4 @@
-﻿namespace Orders.Domain.Orders;
+namespace Orders.Domain.Orders;
 
 public sealed class Order
 {
@@ -45,7 +45,9 @@ public sealed class Order
     public void AssignCourier(Guid courierId)
     {
         if (courierId == Guid.Empty)
+        {
             throw new DomainException("Courier id must not be empty.");
+        }
 
         TransitionTo(OrderStatus.Assigned, from: OrderStatus.CourierSearching);
         CourierId = courierId;
@@ -67,7 +69,9 @@ public sealed class Order
     private void TransitionTo(OrderStatus target, params ReadOnlySpan<OrderStatus> from)
     {
         if (!from.Contains(Status))
+        {
             throw new DomainException($"Cannot transition from {Status} to {target}.");
+        }
 
         Status = target;
     }
