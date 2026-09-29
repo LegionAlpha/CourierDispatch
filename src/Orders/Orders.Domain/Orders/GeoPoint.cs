@@ -1,7 +1,16 @@
 namespace Orders.Domain.Orders;
 
-public readonly record struct GeoPoint(double Latitude, double Longitude)
+public readonly record struct GeoPoint
 {
+    public double Latitude { get; private init; }
+    public double Longitude { get; private init; }
+
+    private GeoPoint(double latitude, double longitude)
+    {
+        Latitude = latitude;
+        Longitude = longitude;
+    }
+
     public static GeoPoint Create(double latitude, double longitude)
     {
         if (double.IsNaN(latitude) || latitude < -90 || latitude > 90)

@@ -11,7 +11,7 @@
 | Слой                        | Технологии                                                                      |
 | --------------------------- | ------------------------------------------------------------------------------- |
 | Runtime                     | .NET 10, Docker Compose                                                         |
-| API                         | ASP.NET Core Minimal API                                                        |
+| API                         | ASP.NET Core Web API (контроллеры)                                              |
 | Межсервисное взаимодействие | gRPC (синхронно), RabbitMQ + MassTransit (команды, саги), Kafka (поток событий) |
 | Данные                      | PostgreSQL (EF Core), Redis (GEO-индекс, Lua, кэш)                              |
 | Архитектура                 | Clean Architecture, CQRS (MediatR)                                              |
@@ -85,7 +85,7 @@ tests/
 - [x] **1a** — solution, слои `Orders`, правило зависимостей
 - [x] **1b** — домен `Order`: state-machine, value objects, unit-тесты
 - [x] **1c** — PostgreSQL в Docker, EF Core, миграции
-- [ ] **1d** — CQRS через MediatR, валидация, `POST /orders`, `GET /orders/{id}`
+- [x] **1d** — CQRS через MediatR, валидация, `POST /orders`, `GET /orders/{id}`
 - [ ] **1e** — health checks
 - [ ] **1f** — сервис `Dispatch`, gRPC-сервер `EstimateDelivery`
 - [ ] **1g** — gRPC-клиент в `Orders`
