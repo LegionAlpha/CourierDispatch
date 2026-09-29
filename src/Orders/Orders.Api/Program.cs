@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Orders.Api.ErrorHandling;
+using Orders.Api.Health;
 using Orders.Application;
 using Orders.Infrastructure;
 
@@ -31,6 +32,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.MapHealthEndpoints();
 
 app.Run();
 

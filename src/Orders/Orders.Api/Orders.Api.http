@@ -73,3 +73,9 @@ GET {{Orders.Api_HostAddress}}/orders/00000000-0000-0000-0000-000000000001
 
 ### id is not a guid -> 404
 GET {{Orders.Api_HostAddress}}/orders/abc
+
+### liveness -> 200
+GET {{Orders.Api_HostAddress}}/health/live
+
+### readiness -> 200 (503 when Postgres is down)
+GET {{Orders.Api_HostAddress}}/health/ready
