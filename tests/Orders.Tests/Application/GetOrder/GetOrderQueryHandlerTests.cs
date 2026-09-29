@@ -17,7 +17,13 @@ public class GetOrderQueryHandlerTests
     [Fact]
     public async Task Handle_ExistingOrder_ReturnsDto()
     {
-        var order = Order.Create(GeoPoint.Create(55.75, 37.62), GeoPoint.Create(55.76, 37.63), 30000, 25);
+        var order = Order.Create(
+            GeoPoint.Create(55.75, 37.62),
+            GeoPoint.Create(55.76, 37.63),
+            30000,
+            25,
+            new DateTimeOffset(2026, 9, 30, 12, 0, 0, TimeSpan.Zero));
+
         _repository.Add(order);
 
         var result = await _handler.Handle(new GetOrderQuery(order.Id), CancellationToken.None);

@@ -13,7 +13,12 @@ public sealed class Order
 
     private Order() { }
 
-    public static Order Create(GeoPoint from, GeoPoint to, long priceMinor, int etaMinutes)
+    public static Order Create(
+        GeoPoint from,
+        GeoPoint to,
+        long priceMinor,
+        int etaMinutes,
+        DateTimeOffset createdAt)
     {
         if (priceMinor < 0)
         {
@@ -27,13 +32,13 @@ public sealed class Order
 
         var order = new Order
         {
-            Id = Guid.CreateVersion7(),
+            Id = Guid.CreateVersion7(createdAt),
             From = from,
             To = to,
             Status = OrderStatus.Created,
             PriceMinor = priceMinor,
             EtaMinutes = etaMinutes,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = createdAt
         };
 
         return order;

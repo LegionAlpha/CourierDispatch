@@ -7,13 +7,14 @@ public class OrderTests
 {
     private static readonly GeoPoint _from = GeoPoint.Create(55.75, 37.62);
     private static readonly GeoPoint _to = GeoPoint.Create(55.76, 37.63);
+    private static readonly DateTimeOffset _createdAt = new(2026, 9, 30, 12, 0, 0, TimeSpan.Zero);
 
     // Create
 
     [Fact]
     public void Create_ReturnsOrderInCreatedStatus()
     {
-        var order = Order.Create(_from, _to, priceMinor: 50000, etaMinutes: 20);
+        var order = Order.Create(_from, _to, priceMinor: 50000, etaMinutes: 20, _createdAt);
 
         Assert.Equal(OrderStatus.Created, order.Status);
         Assert.Null(order.CourierId);
@@ -22,6 +23,7 @@ public class OrderTests
         Assert.Equal(_to, order.To);
         Assert.Equal(50000, order.PriceMinor);
         Assert.Equal(20, order.EtaMinutes);
+        Assert.Equal(_createdAt, order.CreatedAt);
     }
 
     [Theory]
@@ -30,13 +32,13 @@ public class OrderTests
     [InlineData(50000, -5)]
     public void Create_WithInvalidPriceOrEta_Throws(long priceMinor, int etaMinutes)
     {
-        Assert.Throws<DomainException>(() => Order.Create(_from, _to, priceMinor, etaMinutes));
+        Assert.Throws<DomainException>(() => Order.Create(_from, _to, priceMinor, etaMinutes, _createdAt));
     }
 
     [Fact]
     public void Create_WithZeroPrice_Succeeds()
     {
-        var order = Order.Create(_from, _to, priceMinor: 0, etaMinutes: 1);
+        var order = Order.Create(_from, _to, priceMinor: 0, etaMinutes: 1, _createdAt);
 
         Assert.Equal(0, order.PriceMinor);
     }
@@ -44,8 +46,18 @@ public class OrderTests
     [Fact]
     public void Create_GeneratesVersion7Id()
     {
-        var order = Order.Create(_from, _to, 50000, 20);
+        var order = Order.Create(_from, _to, 50000, 20, _createdAt);
         Assert.Equal(7, order.Id.Version);
+    }
+
+    [Fact]
+    public void Create_EmbedsCreatedAtIntoId()
+    {
+        var order = CreateOrder();
+
+        var idTimestamp = order.Id.ToString("N")[..12];
+
+        Assert.Equal(_createdAt.ToUnixTimeMilliseconds().ToString("x12"), idTimestamp);
     }
 
     // Transition
@@ -191,7 +203,7 @@ public class OrderTests
 
     // Helpers
 
-    private static Order CreateOrder() => Order.Create(_from, _to, 50000, 20);
+    private static Order CreateOrder() => Order.Create(_from, _to, 50000, 20, _createdAt);
 
     private static Order CreateSearchingOrder()
     {
@@ -227,23 +239,23 @@ public class OrderTests
             case OrderStatus.PickedUp:
                 return CreatePickedUpOrder();
             case OrderStatus.Delivered:
-            {
-                var order = CreatePickedUpOrder();
-                order.MarkDelivered();
-                return order;
-            }
+                {
+                    var order = CreatePickedUpOrder();
+                    order.MarkDelivered();
+                    return order;
+                }
             case OrderStatus.NoCourierFound:
-            {
-                var order = CreateSearchingOrder();
-                order.MarkNoCourierFound();
-                return order;
-            }
+                {
+                    var order = CreateSearchingOrder();
+                    order.MarkNoCourierFound();
+                    return order;
+                }
             case OrderStatus.Cancelled:
-            {
-                var order = CreateOrder();
-                order.Cancel();
-                return order;
-            }
+                {
+                    var order = CreateOrder();
+                    order.Cancel();
+                    return order;
+                }
             default:
                 throw new ArgumentOutOfRangeException(nameof(status), status, null);
         }
