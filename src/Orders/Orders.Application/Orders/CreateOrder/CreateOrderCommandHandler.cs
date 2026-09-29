@@ -7,7 +7,8 @@ namespace Orders.Application.Orders.CreateOrder;
 internal sealed class CreateOrderCommandHandler(
     IDeliveryEstimator deliveryEstimator,
     IOrderRepository orderRepository,
-    IUnitOfWork unitOfWork) : IRequestHandler<CreateOrderCommand, OrderDto>
+    IUnitOfWork unitOfWork,
+    TimeProvider timeProvider) : IRequestHandler<CreateOrderCommand, OrderDto>
 {
     public async Task<OrderDto> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
@@ -16,7 +17,7 @@ internal sealed class CreateOrderCommandHandler(
 
         var estimate = await deliveryEstimator.EstimateAsync(from, to, cancellationToken);
 
-        var order = Order.Create(from, to, estimate.PriceMinor, estimate.EtaMinutes);
+        var order = Order.Create(from, to, estimate.PriceMinor, estimate.EtaMinutes, timeProvider.GetUtcNow());
 
         orderRepository.Add(order);
         await unitOfWork.SaveChangesAsync(cancellationToken);

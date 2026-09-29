@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Time.Testing;
 using Orders.Application.Abstractions;
 using Orders.Application.Orders.CreateOrder;
 using Orders.Domain.Orders;
@@ -8,15 +9,17 @@ namespace Orders.Tests.Application.CreateOrder;
 public class CreateOrderCommandHandlerTests
 {
     private static readonly CreateOrderCommand _command = new(55.75, 37.62, 55.76, 37.63);
+    private static readonly DateTimeOffset _now = new(2026, 9, 30, 12, 0, 0, TimeSpan.Zero);
 
     private readonly FakeOrderRepository _repository = new();
     private readonly SpyUnitOfWork _unitOfWork = new();
+    private readonly FakeTimeProvider _timeProvider = new(_now);
     private readonly CreateOrderCommandHandler _handler;
 
     public CreateOrderCommandHandlerTests()
     {
         var estimator = new StubDeliveryEstimator(new DeliveryEstimate(PriceMinor: 45000, EtaMinutes: 30));
-        _handler = new CreateOrderCommandHandler(estimator, _repository, _unitOfWork);
+        _handler = new CreateOrderCommandHandler(estimator, _repository, _unitOfWork, _timeProvider);
     }
 
     [Fact]
@@ -49,5 +52,15 @@ public class CreateOrderCommandHandlerTests
         Assert.Equal(_command.ToLatitude, result.ToLatitude);
         Assert.Equal(_command.ToLongitude, result.ToLongitude);
         Assert.Null(result.CourierId);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_TakesCreatedAtFromTimeProvider()
+    {
+        _timeProvider.Advance(TimeSpan.FromMinutes(5));
+
+        var result = await _handler.Handle(_command, CancellationToken.None);
+
+        Assert.Equal(_now.AddMinutes(5), result.CreatedAt);
     }
 }
