@@ -1,6 +1,75 @@
 @Orders.Api_HostAddress = http://localhost:5100
 
-GET {{Orders.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### create order -> 201
+# @name createOrder
+POST {{Orders.Api_HostAddress}}/orders
+Content-Type: application/json
 
-###
+{
+  "fromLatitude": 55.7558,
+  "fromLongitude": 37.6173,
+  "toLatitude": 55.7601,
+  "toLongitude": 37.6186
+}
+
+### get created order -> 200
+GET {{Orders.Api_HostAddress}}/orders/{{createOrder.response.body.$.id}}
+
+### coordinates out of range -> 400
+POST {{Orders.Api_HostAddress}}/orders
+Content-Type: application/json
+
+{
+  "fromLatitude": 200,
+  "fromLongitude": 37.6173,
+  "toLatitude": 55.7601,
+  "toLongitude": 500
+}
+
+### empty object -> 400
+POST {{Orders.Api_HostAddress}}/orders
+Content-Type: application/json
+
+{}
+
+### missing field -> 400
+POST {{Orders.Api_HostAddress}}/orders
+Content-Type: application/json
+
+{
+  "fromLatitude": 55.7558,
+  "fromLongitude": 37.6173,
+  "toLatitude": 55.7601
+}
+
+### null field -> 400
+POST {{Orders.Api_HostAddress}}/orders
+Content-Type: application/json
+
+{
+  "fromLatitude": null,
+  "fromLongitude": 37.6173,
+  "toLatitude": 55.7601,
+  "toLongitude": 37.6186
+}
+
+### number as string -> 400
+POST {{Orders.Api_HostAddress}}/orders
+Content-Type: application/json
+
+{
+  "fromLatitude": "55.7558",
+  "fromLongitude": 37.6173,
+  "toLatitude": 55.7601,
+  "toLongitude": 37.6186
+}
+
+### empty body -> 400
+POST {{Orders.Api_HostAddress}}/orders
+Content-Type: application/json
+
+### order not found -> 404
+GET {{Orders.Api_HostAddress}}/orders/00000000-0000-0000-0000-000000000001
+
+### id is not a guid -> 404
+GET {{Orders.Api_HostAddress}}/orders/abc

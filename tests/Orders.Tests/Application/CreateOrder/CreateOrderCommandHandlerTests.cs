@@ -1,0 +1,53 @@
+using Orders.Application.Abstractions;
+using Orders.Application.Orders.CreateOrder;
+using Orders.Domain.Orders;
+using Orders.Tests.Application.Fakes;
+
+namespace Orders.Tests.Application.CreateOrder;
+
+public class CreateOrderCommandHandlerTests
+{
+    private static readonly CreateOrderCommand _command = new(55.75, 37.62, 55.76, 37.63);
+
+    private readonly FakeOrderRepository _repository = new();
+    private readonly SpyUnitOfWork _unitOfWork = new();
+    private readonly CreateOrderCommandHandler _handler;
+
+    public CreateOrderCommandHandlerTests()
+    {
+        var estimator = new StubDeliveryEstimator(new DeliveryEstimate(PriceMinor: 45000, EtaMinutes: 30));
+        _handler = new CreateOrderCommandHandler(estimator, _repository, _unitOfWork);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_AddsOrderAndSavesOnce()
+    {
+        var result = await _handler.Handle(_command, CancellationToken.None);
+
+        var order = Assert.Single(_repository.Orders);
+        Assert.Equal(order.Id, result.Id);
+        Assert.Equal(1, _unitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_TakesPriceAndEtaFromEstimator()
+    {
+        var result = await _handler.Handle(_command, CancellationToken.None);
+
+        Assert.Equal(45000, result.PriceMinor);
+        Assert.Equal(30, result.EtaMinutes);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_ReturnsCreatedOrderWithCoordinates()
+    {
+        var result = await _handler.Handle(_command, CancellationToken.None);
+
+        Assert.Equal(OrderStatus.Created, result.Status);
+        Assert.Equal(_command.FromLatitude, result.FromLatitude);
+        Assert.Equal(_command.FromLongitude, result.FromLongitude);
+        Assert.Equal(_command.ToLatitude, result.ToLatitude);
+        Assert.Equal(_command.ToLongitude, result.ToLongitude);
+        Assert.Null(result.CourierId);
+    }
+}
