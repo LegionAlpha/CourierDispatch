@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Orders.Application.Abstractions;
 using Orders.Infrastructure.Delivery;
+using Orders.Infrastructure.Health;
 using Orders.Infrastructure.Persistence;
 using Orders.Infrastructure.Time;
 
@@ -25,6 +26,9 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(serviceProvider => serviceProvider.GetRequiredService<OrdersDbContext>());
         services.AddSingleton<IDeliveryEstimator, StubDeliveryEstimator>();
         services.AddSingleton<TimeProvider>(new MicrosecondPrecisionTimeProvider(TimeProvider.System));
+
+        services.AddHealthChecks()
+            .AddDbContextCheck<OrdersDbContext>(name: "postgres", tags: [HealthCheckTags.Ready]);
 
         return services;
     }
