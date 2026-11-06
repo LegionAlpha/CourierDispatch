@@ -61,6 +61,30 @@ public sealed class Order
     public void MarkNoCourierFound() =>
         TransitionTo(OrderStatus.NoCourierFound, from: OrderStatus.CourierSearching);
 
+    public void ApplyCourierAssignment(Guid courierId)
+    {
+        if (courierId == Guid.Empty)
+        {
+            throw new DomainException("Courier id must not be empty.");
+        }
+
+        if (Status == OrderStatus.Cancelled)
+        {
+            return;
+        }
+        if (CourierId == courierId && Status is OrderStatus.Assigned or OrderStatus.PickedUp or OrderStatus.Delivered)
+        {
+            return;
+        }
+
+        // At this stage the first event from Dispatch already contains the assignment result.
+        if (Status == OrderStatus.Created)
+        {
+            StartCourierSearch();
+        }
+        AssignCourier(courierId);
+    }
+
     public void MarkPickedUp() =>
         TransitionTo(OrderStatus.PickedUp, from: OrderStatus.Assigned);
 
