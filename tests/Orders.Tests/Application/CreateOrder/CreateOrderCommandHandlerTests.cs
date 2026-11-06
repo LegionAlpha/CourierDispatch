@@ -3,6 +3,7 @@ using Orders.Application.Abstractions;
 using Orders.Application.Orders.CreateOrder;
 using Orders.Domain.Orders;
 using Orders.Tests.Application.Fakes;
+using Shared.Contracts.Orders;
 
 namespace Orders.Tests.Application.CreateOrder;
 
@@ -14,12 +15,13 @@ public class CreateOrderCommandHandlerTests
     private readonly FakeOrderRepository _repository = new();
     private readonly SpyUnitOfWork _unitOfWork = new();
     private readonly FakeTimeProvider _timeProvider = new(_now);
+    private readonly FakeOutboxWriter _outbox = new();
     private readonly CreateOrderCommandHandler _handler;
 
     public CreateOrderCommandHandlerTests()
     {
         var estimator = new StubDeliveryEstimator(new DeliveryEstimate(PriceMinor: 45000, EtaMinutes: 30));
-        _handler = new CreateOrderCommandHandler(estimator, _repository, _unitOfWork, _timeProvider);
+        _handler = new CreateOrderCommandHandler(estimator, _repository, _unitOfWork, _outbox, _timeProvider);
     }
 
     [Fact]
@@ -62,5 +64,38 @@ public class CreateOrderCommandHandlerTests
         var result = await _handler.Handle(_command, CancellationToken.None);
 
         Assert.Equal(_now.AddMinutes(5), result.CreatedAt);
+    }
+
+    [Fact]
+    public async Task Handle_ValidCommand_StagesOrderCreatedBeforeSaving()
+    {
+        _outbox.OnAdd = _ => Assert.Equal(0, _unitOfWork.SaveChangesCalls);
+
+        var result = await _handler.Handle(_command, CancellationToken.None);
+
+        Assert.Equal(new OrderCreated(result.Id, result.FromLatitude, result.FromLongitude,
+            result.ToLatitude, result.ToLongitude, result.PriceMinor, result.EtaMinutes, result.CreatedAt),
+            Assert.Single(_outbox.Messages));
+    }
+
+    [Fact]
+    public async Task Handle_SaveFails_PropagatesFailure()
+    {
+        _unitOfWork.Failure = new InvalidOperationException("Database write failed.");
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Handle(_command, CancellationToken.None));
+
+        Assert.Equal(1, _unitOfWork.SaveChangesCalls);
+    }
+
+    [Fact]
+    public async Task Handle_StagingEventFails_DoesNotSaveOrder()
+    {
+        _outbox.OnAdd = _ => throw new InvalidOperationException("Cannot serialize event.");
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _handler.Handle(_command, CancellationToken.None));
+
+        Assert.Equal(0, _unitOfWork.SaveChangesCalls);
     }
 }

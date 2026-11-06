@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package dispatch.v1;
+
+option csharp_namespace = "Dispatch.Grpc";
+
+service DispatchService {
+  rpc EstimateDelivery (EstimateRequest) returns (EstimateResponse);
+}
+
+message GeoPoint {
+  double lat = 1;
+  double lon = 2;
+}
+
+message EstimateRequest {
+  GeoPoint from = 1;
+  GeoPoint to = 2;
+}
+
+message EstimateResponse {
+  int32 eta_minutes = 1;
+  // Price in kopecks; the current estimator uses a fixed demonstration tariff.
+  int64 price_minor = 2;
+  // Placeholder until the Redis GEO courier index is implemented.
+  int32 available_couriers_nearby = 3;
+}

@@ -13,6 +13,9 @@ public sealed class OrdersController(ISender sender) : ControllerBase
     [HttpPost]
     [ProducesResponseType<OrderDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status502BadGateway)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status503ServiceUnavailable)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status504GatewayTimeout)]
     public async Task<ActionResult<OrderDto>> Create(
         CreateOrderRequest request,
         CancellationToken cancellationToken)

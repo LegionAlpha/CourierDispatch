@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Orders.Application.Abstractions;
 using Orders.Domain;
 
 namespace Orders.Api.ErrorHandling;
@@ -16,6 +17,16 @@ internal sealed class GlobalExceptionHandler(IProblemDetailsService problemDetai
         ProblemDetails? problemDetails = exception switch
         {
             ValidationException validationException => CreateValidationProblem(validationException),
+            DeliveryEstimationException estimationException => new ProblemDetails
+            {
+                Status = estimationException.Failure switch
+                {
+                    DeliveryEstimationFailure.Unavailable => StatusCodes.Status503ServiceUnavailable,
+                    DeliveryEstimationFailure.TimedOut => StatusCodes.Status504GatewayTimeout,
+                    _ => StatusCodes.Status502BadGateway
+                },
+                Title = estimationException.Message
+            },
             DomainException domainException => new ProblemDetails
             {
                 Status = StatusCodes.Status422UnprocessableEntity,

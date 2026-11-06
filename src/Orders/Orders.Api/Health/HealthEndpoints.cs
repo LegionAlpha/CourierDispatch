@@ -16,7 +16,10 @@ internal static class HealthEndpoints
 
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
         {
-            Predicate = registration => registration.Tags.Contains(HealthCheckTags.Ready),
+            // RabbitMQ is an asynchronous dependency: pending events remain in PostgreSQL.
+            Predicate = registration => registration.Tags.Contains(HealthCheckTags.Ready)
+                && !registration.Tags.Contains("masstransit"),
+            ResultStatusCodes = { [HealthStatus.Degraded] = StatusCodes.Status503ServiceUnavailable },
             ResponseWriter = WriteResponseAsync
         });
 

@@ -1,5 +1,11 @@
 <Solution>
   <Folder Name="/src/" />
+  <Folder Name="/src/Dispatch/">
+    <Project Path="src/Dispatch/Dispatch.Api/Dispatch.Api.csproj" />
+    <Project Path="src/Dispatch/Dispatch.Application/Dispatch.Application.csproj" />
+    <Project Path="src/Dispatch/Dispatch.Domain/Dispatch.Domain.csproj" />
+    <Project Path="src/Dispatch/Dispatch.Infrastructure/Dispatch.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Orders/">
     <Project Path="src/Orders/Orders.Api/Orders.Api.csproj" />
     <Project Path="src/Orders/Orders.Application/Orders.Application.csproj" />
@@ -7,6 +13,10 @@
     <Project Path="src/Orders/Orders.Infrastructure/Orders.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Dispatch.Tests/Dispatch.Tests.csproj" />
     <Project Path="tests/Orders.Tests/Orders.Tests.csproj" />
+  </Folder>
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Shared/Shared.Contracts/Shared.Contracts.csproj" />
   </Folder>
 </Solution>

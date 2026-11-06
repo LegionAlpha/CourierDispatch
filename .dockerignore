@@ -1,0 +1,17 @@
+**
+!.editorconfig
+!Directory.Build.props
+!Directory.Packages.props
+!global.json
+!nuget.config
+!src/
+!src/**
+!proto/
+!proto/**
+**/bin/
+**/obj/
+**/Properties/launchSettings.json
+**/appsettings.Development.json
+**/*.user
+**/*.suo
+**/.env

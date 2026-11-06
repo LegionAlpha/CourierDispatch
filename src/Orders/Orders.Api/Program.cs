@@ -4,6 +4,7 @@ using Orders.Api.ErrorHandling;
 using Orders.Api.Health;
 using Orders.Application;
 using Orders.Infrastructure;
+using Orders.Infrastructure.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddMessaging(builder.Configuration);
 
 var app = builder.Build();
 
